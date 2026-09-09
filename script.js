@@ -167,7 +167,9 @@ function renderTable() {
 
     // 2. Dựng Body (Courses)
     let bodyHtml = '';
+    let mobileCardsHtml = '';
     data.courses.forEach((c, index) => {
+        // --- Desktop Table Row ---
         let rowHtml = `
             <tr class="bg-white">
                 <td class="sticky-col-1 hidden md:table-cell bg-inherit text-center">${index + 1}</td>
@@ -185,12 +187,43 @@ function renderTable() {
                 </td>
         `;
         
+        // --- Mobile Card ---
+        let cardHtml = `
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200 relative">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex-1 pr-4">
+                        <input type="text" class="font-bold text-blue-800 text-base w-full outline-none bg-transparent" value="${c.tenHP}" onchange="updateCourse('${c.id}', 'tenHP', this.value)" placeholder="Tên học phần...">
+                        <input type="text" class="text-xs text-gray-500 w-full outline-none bg-transparent mt-0.5" value="${c.maHP}" onchange="updateCourse('${c.id}', 'maHP', this.value)" placeholder="Mã học phần...">
+                    </div>
+                    <button onclick="deleteCourse('${c.id}')" class="text-red-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash"></i></button>
+                </div>
+                <div class="flex gap-4 mb-3 text-sm border-b border-gray-100 pb-3">
+                    <label class="flex items-center gap-1"><span class="text-gray-500 text-xs font-medium">Số TC:</span> 
+                        <input type="number" class="w-12 border rounded px-1 text-center font-medium outline-none focus:border-blue-400" value="${c.tc}" min="0" step="0.5" onchange="updateCourse('${c.id}', 'tc', this.value)">
+                    </label>
+                    <label class="flex items-center gap-1 cursor-pointer">
+                        <input type="checkbox" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" ${c.tinhGPA ? 'checked' : ''} onchange="updateCourse('${c.id}', 'tinhGPA', this.checked)">
+                        <span class="text-gray-600 text-xs font-medium">Tính ĐTB</span>
+                    </label>
+                </div>
+                
+                <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                    <div class="text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wider">Điểm theo học kỳ</div>
+                    <div class="grid grid-cols-4 gap-2">
+        `;
+        
         data.semesters.forEach(sem => {
             const score = c.scores[sem] || '';
             rowHtml += `
                 <td>
                     <input type="text" class="score-input font-medium" value="${score}" onchange="updateScore('${c.id}', '${sem}', this.value)">
                 </td>
+            `;
+            cardHtml += `
+                <div>
+                    <div class="text-[10px] text-center text-gray-400 mb-0.5">Kỳ ${sem}</div>
+                    <input type="text" class="w-full border rounded text-center text-sm py-1 font-medium bg-white outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400" placeholder="-" value="${score}" onchange="updateScore('${c.id}', '${sem}', this.value)">
+                </div>
             `;
         });
         
@@ -200,9 +233,17 @@ function renderTable() {
                 </td>
             </tr>
         `;
+        cardHtml += `
+                    </div>
+                </div>
+            </div>
+        `;
+        
         bodyHtml += rowHtml;
+        mobileCardsHtml += cardHtml;
     });
     tbody.innerHTML = bodyHtml;
+    document.getElementById('mobile-cards-container').innerHTML = mobileCardsHtml;
 
     // 3. Tính toán Footer (Các dòng tổng kết)
     // Tính toán theo từng cột (học kỳ)
@@ -279,6 +320,11 @@ function renderTable() {
     footHtmlAccGpa += `<td></td></tr>`;
 
     tfoot.innerHTML = footHtmlTc + footHtmlGpa + footHtmlAccTc + footHtmlAccGpa;
+    
+    // Update mobile summary bar
+    const finalGpa = accTcGpa > 0 ? (accScoreGpa / accTcGpa).toFixed(2) : '0.00';
+    document.getElementById('mobile-total-tc').innerText = accTcTotal > 0 ? accTcTotal : '0';
+    document.getElementById('mobile-total-gpa').innerText = finalGpa;
 }
 
 // Init

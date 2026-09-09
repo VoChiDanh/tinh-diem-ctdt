@@ -57,7 +57,7 @@
         </div>
     </div>
 
-    <div class="table-container flex-1 border border-gray-300">
+    <div class="table-container flex-1 border border-gray-300 hidden md:block">
         <table class="excel-table" id="ctdt-table">
             <thead>
                 <tr id="header-row">
@@ -71,6 +71,24 @@
                 <!-- JS will populate -->
             </tfoot>
         </table>
+    </div>
+
+    <!-- Mobile Card View -->
+    <div id="mobile-cards-container" class="md:hidden flex-1 overflow-y-auto space-y-4 pb-20">
+        <!-- JS will populate cards here -->
+    </div>
+
+    <!-- Mobile Sticky Summary Bar -->
+    <div id="mobile-summary-bar" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-around items-center z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div class="text-center">
+            <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Tín chỉ tích luỹ</div>
+            <div class="font-bold text-blue-700 text-lg" id="mobile-total-tc">0</div>
+        </div>
+        <div class="h-8 w-px bg-gray-300"></div>
+        <div class="text-center">
+            <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">ĐTB tích luỹ</div>
+            <div class="font-bold text-red-600 text-lg" id="mobile-total-gpa">0.00</div>
+        </div>
     </div>
 
     <!-- Modal Form -->
