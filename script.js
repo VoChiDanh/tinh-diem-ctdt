@@ -413,7 +413,7 @@ function renderTable() {
 
 // Init
 if (!data.hasInitialized) {
-    loadSample();
+    saveData(false);
 } else {
     // Save initial state for undo
     saveHistory();
