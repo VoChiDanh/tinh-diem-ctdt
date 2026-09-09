@@ -39,6 +39,9 @@
             <p class="text-xs md:text-sm text-gray-600 mt-1">Nhập điểm trực tiếp vào các ô dưới học kỳ. Check vào cột "Tính điểm" nếu môn đó tính vào GPA.</p>
         </div>
         <div class="flex flex-wrap gap-2">
+            <button id="view-toggle-btn" onclick="toggleMobileView()" class="md:hidden bg-indigo-100 hover:bg-indigo-200 text-indigo-800 px-4 py-2 rounded text-sm font-medium shadow border border-indigo-200">
+                <i class="fa-solid fa-list mr-1"></i> Xem dạng thẻ
+            </button>
             <button onclick="undo()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm font-medium shadow" title="Hoàn tác (Ctrl+Z)">
                 <i class="fa-solid fa-rotate-left mr-1"></i> Hoàn tác
             </button>
@@ -57,7 +60,7 @@
         </div>
     </div>
 
-    <div class="table-container flex-1 border border-gray-300 hidden md:block">
+    <div id="table-container" class="table-container flex-1 border border-gray-300">
         <table class="excel-table" id="ctdt-table">
             <thead>
                 <tr id="header-row">
@@ -74,12 +77,12 @@
     </div>
 
     <!-- Mobile Card View -->
-    <div id="mobile-cards-container" class="md:hidden flex-1 overflow-y-auto space-y-4 pb-20">
+    <div id="mobile-cards-container" class="md:hidden max-md:hidden flex-1 overflow-y-auto space-y-4 pb-20">
         <!-- JS will populate cards here -->
     </div>
 
     <!-- Mobile Sticky Summary Bar -->
-    <div id="mobile-summary-bar" class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-around items-center z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+    <div id="mobile-summary-bar" class="md:hidden max-md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex justify-around items-center z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
         <div class="text-center">
             <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Tín chỉ tích luỹ</div>
             <div class="font-bold text-blue-700 text-lg" id="mobile-total-tc">0</div>

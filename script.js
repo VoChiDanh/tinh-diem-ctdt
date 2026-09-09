@@ -86,6 +86,32 @@ function closeCourseModal() {
     document.getElementById('course-modal').classList.remove('flex');
 }
 
+// Handle Mobile View Toggle
+let currentMobileView = 'table';
+function toggleMobileView() {
+    currentMobileView = currentMobileView === 'table' ? 'cards' : 'table';
+    updateMobileView();
+}
+
+function updateMobileView() {
+    const tableContainer = document.getElementById('table-container');
+    const cardsContainer = document.getElementById('mobile-cards-container');
+    const summaryBar = document.getElementById('mobile-summary-bar');
+    const toggleBtn = document.getElementById('view-toggle-btn');
+    
+    if (currentMobileView === 'table') {
+        tableContainer.classList.remove('max-md:hidden');
+        cardsContainer.classList.add('max-md:hidden');
+        summaryBar.classList.add('max-md:hidden');
+        if(toggleBtn) toggleBtn.innerHTML = '<i class="fa-solid fa-list mr-1"></i> Xem dạng thẻ';
+    } else {
+        tableContainer.classList.add('max-md:hidden');
+        cardsContainer.classList.remove('max-md:hidden');
+        summaryBar.classList.remove('max-md:hidden');
+        if(toggleBtn) toggleBtn.innerHTML = '<i class="fa-solid fa-table mr-1"></i> Xem dạng bảng';
+    }
+}
+
 // override addCourse button to open modal
 function addCourse() {
     openCourseModal();
