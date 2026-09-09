@@ -246,8 +246,8 @@ function renderTable() {
                 const scoreNum = parseFloat(val);
                 const isValidScore = !isNaN(scoreNum);
                 
-                // Luôn cộng vào Tín chỉ tích luỹ nếu pass (có điểm số >= 0 hoặc 'Đ')
-                if (isValidScore || isDat) {
+                // Chỉ cộng vào Tín chỉ tích luỹ nếu học phần đó tính điểm và pass (có điểm số >= 0 hoặc 'Đ')
+                if (c.tinhGPA && (isValidScore || isDat)) {
                     sTcAll += c.tc;
                 }
                 
