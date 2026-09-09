@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điểm CTDT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f8f9fa; }
+        .excel-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+        .excel-table th, .excel-table td { border: 1px solid #c0c0c0; padding: 6px 8px; text-align: center; }
+        .excel-table th { background-color: #e2efda; font-weight: bold; color: #1f4e78; position: sticky; top: 0; z-index: 10; }
+        .excel-table td.text-left { text-align: left; }
+        .excel-table tr:hover { background-color: #f1f8ff; }
+        .excel-table .course-group { background-color: #d9e1f2; font-weight: bold; text-align: left; }
+        .excel-table .summary-row { font-weight: bold; background-color: #fff2cc; }
+        
+        .score-input { width: 100%; border: none; background: transparent; text-align: center; font-family: inherit; font-size: inherit; outline: none; }
+        .score-input:focus { background-color: #e8f0fe; }
+        
+        .sticky-col-1 { position: sticky; left: 0; z-index: 5; background-color: inherit; }
+        .sticky-col-2 { position: sticky; left: 40px; z-index: 5; background-color: inherit; }
+        .sticky-col-3 { position: sticky; left: 120px; z-index: 5; background-color: inherit; }
+        .excel-table th.sticky-col-1, .excel-table th.sticky-col-2, .excel-table th.sticky-col-3 { z-index: 15; }
+        
+        /* Custom scrollbar for table container */
+        .table-container { max-height: 80vh; overflow: auto; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="p-4 flex flex-col h-screen">
+
+    <div class="flex justify-between items-center mb-4">
+        <div>
+            <h1 class="text-2xl font-bold text-blue-800">BẢNG ĐIỂM THEO CHƯƠNG TRÌNH ĐÀO TẠO</h1>
+            <p class="text-sm text-gray-600 mt-1">Nhập điểm trực tiếp vào các ô dưới học kỳ. Check vào cột "Tính điểm" nếu môn đó tính vào GPA.</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="undo()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm font-medium shadow" title="Hoàn tác (Ctrl+Z)">
+                <i class="fa-solid fa-rotate-left mr-1"></i> Hoàn tác
+            </button>
+            <button onclick="addCourse()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium shadow">
+                <i class="fa-solid fa-plus mr-1"></i> Thêm môn học
+            </button>
+            <button onclick="addSemester()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium shadow">
+                <i class="fa-solid fa-plus mr-1"></i> Thêm học kỳ
+            </button>
+            <button onclick="loadSample()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded text-sm font-medium shadow">
+                Dữ liệu mẫu
+            </button>
+            <button onclick="clearData()" class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded text-sm font-medium shadow">
+                Làm mới
+            </button>
+        </div>
+    </div>
+
+    <div class="table-container flex-1 border border-gray-300">
+        <table class="excel-table" id="ctdt-table">
+            <thead>
+                <tr id="header-row">
+                    <!-- JS will populate -->
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- JS will populate -->
+            </tbody>
+            <tfoot id="table-foot">
+                <!-- JS will populate -->
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="course-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50 rounded-t-lg">
+                <h3 class="text-lg font-bold text-gray-800">Thêm Môn Học Mới</h3>
+                <button onclick="closeCourseModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form id="add-course-form" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Mã Học Phần</label>
+                    <input type="text" id="modal-maHP" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="VD: INT101">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Tên Học Phần</label>
+                    <input type="text" id="modal-tenHP" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="VD: Lập trình C++">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Số Tín Chỉ</label>
+                    <input type="number" id="modal-tc" min="1" step="0.5" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" value="3">
+                </div>
+                <div class="flex items-center pt-2">
+                    <input type="checkbox" id="modal-tinhGPA" checked class="w-4 h-4 text-blue-600 rounded">
+                    <label for="modal-tinhGPA" class="ml-2 text-sm font-semibold text-gray-700">Tính vào ĐTB (GPA)</label>
+                </div>
+                <div class="pt-4 flex justify-end gap-2 mt-4 border-t pt-4">
+                    <button type="button" onclick="closeCourseModal()" class="px-4 py-2 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded">Huỷ</button>
+                    <button type="submit" class="px-4 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded shadow">Thêm Môn</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
