@@ -21,8 +21,13 @@
         
         .sticky-col-1 { position: sticky; left: 0; z-index: 5; background-color: inherit; }
         .sticky-col-2 { position: sticky; left: 40px; z-index: 5; background-color: inherit; }
-        .sticky-col-3 { position: sticky; left: 120px; z-index: 5; background-color: inherit; }
+        .sticky-col-3 { position: sticky; left: 136px; z-index: 5; background-color: inherit; }
         .excel-table th.sticky-col-1, .excel-table th.sticky-col-2, .excel-table th.sticky-col-3 { z-index: 15; }
+        
+        @media (max-width: 768px) {
+            .sticky-col-2, .sticky-col-3 { position: static; }
+            .excel-table th.sticky-col-2, .excel-table th.sticky-col-3 { z-index: 10; }
+        }
         
         /* Custom scrollbar for table container */
         .table-container { max-height: 80vh; overflow: auto; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
@@ -30,12 +35,12 @@
 </head>
 <body class="p-4 flex flex-col h-screen">
 
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-blue-800">BẢNG ĐIỂM THEO CHƯƠNG TRÌNH ĐÀO TẠO</h1>
-            <p class="text-sm text-gray-600 mt-1">Nhập điểm trực tiếp vào các ô dưới học kỳ. Check vào cột "Tính điểm" nếu môn đó tính vào GPA.</p>
+            <h1 class="text-xl md:text-2xl font-bold text-blue-800">BẢNG ĐIỂM THEO CHƯƠNG TRÌNH ĐÀO TẠO</h1>
+            <p class="text-xs md:text-sm text-gray-600 mt-1">Nhập điểm trực tiếp vào các ô dưới học kỳ. Check vào cột "Tính điểm" nếu môn đó tính vào GPA.</p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
             <button onclick="undo()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-sm font-medium shadow" title="Hoàn tác (Ctrl+Z)">
                 <i class="fa-solid fa-rotate-left mr-1"></i> Hoàn tác
             </button>
