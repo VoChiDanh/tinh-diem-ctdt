@@ -154,16 +154,16 @@ function renderTable() {
 
     // 1. Dựng Header
     let headHtml = `
-        <th class="sticky-col-1 w-10">TT</th>
-        <th class="sticky-col-2 w-24">Mã HP</th>
-        <th class="sticky-col-3 w-64 text-left">Tên học phần</th>
-        <th class="w-16">Số TC</th>
-        <th class="w-20">Tính điểm</th>
+        <th class="sticky-col-1 w-10 min-w-[40px] whitespace-nowrap">TT</th>
+        <th class="sticky-col-2 w-24 min-w-[96px] whitespace-nowrap">Mã HP</th>
+        <th class="sticky-col-3 w-64 min-w-[250px] text-left whitespace-nowrap">Tên học phần</th>
+        <th class="w-16 min-w-[64px] whitespace-nowrap">Số TC</th>
+        <th class="w-20 min-w-[80px] whitespace-nowrap">Tính điểm</th>
     `;
     data.semesters.forEach(sem => {
-        headHtml += `<th class="w-20">Học kỳ ${sem}</th>`;
+        headHtml += `<th class="w-20 min-w-[80px] whitespace-nowrap">Học kỳ ${sem}</th>`;
     });
-    headHtml += `<th class="w-10">Xoá</th>`;
+    headHtml += `<th class="w-10 min-w-[40px] whitespace-nowrap">Xoá</th>`;
     thead.innerHTML = headHtml;
 
     // 2. Dựng Body (Courses)
