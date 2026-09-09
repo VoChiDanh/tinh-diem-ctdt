@@ -86,28 +86,28 @@ function closeCourseModal() {
     document.getElementById('course-modal').classList.remove('flex');
 }
 
-// Handle Mobile View Toggle
-let currentMobileView = 'table';
-function toggleMobileView() {
-    currentMobileView = currentMobileView === 'table' ? 'cards' : 'table';
-    updateMobileView();
+// Handle View Toggle
+let currentView = 'table';
+function toggleView() {
+    currentView = currentView === 'table' ? 'cards' : 'table';
+    updateView();
 }
 
-function updateMobileView() {
+function updateView() {
     const tableContainer = document.getElementById('table-container');
-    const cardsContainer = document.getElementById('mobile-cards-container');
+    const cardsContainer = document.getElementById('cards-container');
     const summaryBar = document.getElementById('mobile-summary-bar');
     const toggleBtn = document.getElementById('view-toggle-btn');
     
-    if (currentMobileView === 'table') {
-        tableContainer.classList.remove('max-md:hidden');
-        cardsContainer.classList.add('max-md:hidden');
-        summaryBar.classList.add('max-md:hidden');
+    if (currentView === 'table') {
+        tableContainer.classList.remove('hidden');
+        cardsContainer.classList.add('hidden');
+        summaryBar.classList.add('hidden');
         if(toggleBtn) toggleBtn.innerHTML = '<i class="fa-solid fa-list mr-1"></i> Xem dạng thẻ';
     } else {
-        tableContainer.classList.add('max-md:hidden');
-        cardsContainer.classList.remove('max-md:hidden');
-        summaryBar.classList.remove('max-md:hidden');
+        tableContainer.classList.add('hidden');
+        cardsContainer.classList.remove('hidden');
+        summaryBar.classList.remove('hidden');
         if(toggleBtn) toggleBtn.innerHTML = '<i class="fa-solid fa-table mr-1"></i> Xem dạng bảng';
     }
 }
@@ -385,7 +385,7 @@ function renderTable() {
         }
     });
 
-    document.getElementById('mobile-cards-container').innerHTML = mobileCardsHtml;
+    document.getElementById('cards-grid').innerHTML = mobileCardsHtml;
     
     footHtmlTc += `<td></td></tr>`;
     footHtmlGpa += `<td></td></tr>`;
