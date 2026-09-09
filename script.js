@@ -165,9 +165,8 @@ function renderTable() {
     headHtml += `<th class="w-10 min-w-[40px] whitespace-nowrap"><i class="fa-solid fa-trash"></i></th>`;
     thead.innerHTML = headHtml;
 
-    // 2. Dựng Body (Courses)
+    // 2. Dựng Body (Courses) cho Bảng (Desktop)
     let bodyHtml = '';
-    let mobileCardsHtml = '';
     data.courses.forEach((c, index) => {
         // --- Desktop Table Row ---
         let rowHtml = `
@@ -187,43 +186,12 @@ function renderTable() {
                 </td>
         `;
         
-        // --- Mobile Card ---
-        let cardHtml = `
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200 relative">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex-1 pr-4">
-                        <input type="text" class="font-bold text-blue-800 text-base w-full outline-none bg-transparent" value="${c.tenHP}" onchange="updateCourse('${c.id}', 'tenHP', this.value)" placeholder="Tên học phần...">
-                        <input type="text" class="text-xs text-gray-500 w-full outline-none bg-transparent mt-0.5" value="${c.maHP}" onchange="updateCourse('${c.id}', 'maHP', this.value)" placeholder="Mã học phần...">
-                    </div>
-                    <button onclick="deleteCourse('${c.id}')" class="text-red-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash"></i></button>
-                </div>
-                <div class="flex gap-4 mb-3 text-sm border-b border-gray-100 pb-3">
-                    <label class="flex items-center gap-1"><span class="text-gray-500 text-xs font-medium">Số TC:</span> 
-                        <input type="number" class="w-12 border rounded px-1 text-center font-medium outline-none focus:border-blue-400" value="${c.tc}" min="0" step="0.5" onchange="updateCourse('${c.id}', 'tc', this.value)">
-                    </label>
-                    <label class="flex items-center gap-1 cursor-pointer">
-                        <input type="checkbox" class="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" ${c.tinhGPA ? 'checked' : ''} onchange="updateCourse('${c.id}', 'tinhGPA', this.checked)">
-                        <span class="text-gray-600 text-xs font-medium">Tính ĐTB</span>
-                    </label>
-                </div>
-                
-                <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                    <div class="text-[10px] font-bold text-gray-500 mb-2 uppercase tracking-wider">Điểm theo học kỳ</div>
-                    <div class="grid grid-cols-4 gap-2">
-        `;
-        
         data.semesters.forEach(sem => {
             const score = c.scores[sem] || '';
             rowHtml += `
                 <td>
                     <input type="text" class="score-input font-medium" value="${score}" onchange="updateScore('${c.id}', '${sem}', this.value)">
                 </td>
-            `;
-            cardHtml += `
-                <div>
-                    <div class="text-[10px] text-center text-gray-400 mb-0.5">Kỳ ${sem}</div>
-                    <input type="text" class="w-full border rounded text-center text-sm py-1 font-medium bg-white outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400" placeholder="-" value="${score}" onchange="updateScore('${c.id}', '${sem}', this.value)">
-                </div>
             `;
         });
         
@@ -233,27 +201,11 @@ function renderTable() {
                 </td>
             </tr>
         `;
-        cardHtml += `
-                    </div>
-                </div>
-            </div>
-        `;
-        
         bodyHtml += rowHtml;
-        mobileCardsHtml += cardHtml;
     });
     tbody.innerHTML = bodyHtml;
-    document.getElementById('mobile-cards-container').innerHTML = mobileCardsHtml;
 
-    // 3. Tính toán Footer (Các dòng tổng kết)
-    // Tính toán theo từng cột (học kỳ)
-    let semTcs = {};
-    let semScores = {};
-    
-    let accTcGpa = 0;
-    let accScoreGpa = 0;
-    let accTcTotal = 0;
-    
+    // 3. Tính toán Footer (Các dòng tổng kết) và Dựng Giao diện Thẻ (Mobile)
     let footHtmlTc = `<tr class="summary-row">
         <td class="sticky-col-1 hidden md:table-cell bg-inherit" style="border-right: none;"></td>
         <td class="sticky-col-2 bg-inherit text-right whitespace-nowrap" style="border-left: none;">Tín chỉ học kỳ (TC)</td>
@@ -274,24 +226,81 @@ function renderTable() {
         <td class="sticky-col-2 bg-inherit text-right whitespace-nowrap" style="border-left: none;">Điểm TB tích luỹ</td>
         <td colspan="2"></td>`;
 
-    data.semesters.forEach(sem => {
-        let sTcAll = 0; // Tất cả tín chỉ pass trong kỳ (để tính Tín chỉ tích luỹ toàn khoá)
-        let sTcGpa = 0; // Tín chỉ môn CÓ TÍNH GPA (để tính TC học kỳ và ĐTB học kỳ)
-        let sScoreGpa = 0; // Tổng điểm môn CÓ TÍNH GPA
+    let mobileCardsHtml = '';
+    let finalTcTotal = 0;
+    let finalGpa = '0.00';
 
+    data.semesters.forEach((sem, semIndex) => {
+        // --- XỬ LÝ GIAO DIỆN MOBILE (CARD THEO HỌC KỲ) ---
+        let coursesInSem = data.courses.filter(c => c.scores[sem] !== undefined && c.scores[sem].trim() !== '');
+        let coursesNotInSem = data.courses.filter(c => c.scores[sem] === undefined || c.scores[sem].trim() === '');
+        
+        let cardHtml = `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-4">
+                <div class="bg-blue-50 px-4 py-3 border-b border-gray-200 font-bold text-blue-800 flex justify-between items-center">
+                    <span>HỌC KỲ ${sem}</span>
+                    <span class="text-xs font-normal text-gray-500 bg-white px-2 py-0.5 rounded-full border">${coursesInSem.length} môn</span>
+                </div>
+                <div class="p-3 space-y-3">
+        `;
+        
+        coursesInSem.forEach(c => {
+            cardHtml += `
+                    <div class="flex items-center justify-between gap-2 border-b border-gray-50 pb-2">
+                        <div class="flex-1">
+                            <div class="font-bold text-sm text-gray-800">${c.tenHP}</div>
+                            <div class="text-xs text-gray-500">${c.maHP} • ${c.tc} TC ${c.tinhGPA ? '• Có ĐTB' : ''}</div>
+                        </div>
+                        <div class="w-16">
+                            <input type="text" class="w-full border border-gray-300 rounded text-center text-sm py-1 font-bold text-blue-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" value="${c.scores[sem]}" onchange="updateScore('${c.id}', '${sem}', this.value)" placeholder="Điểm">
+                        </div>
+                    </div>
+            `;
+        });
+        
+        if (coursesNotInSem.length > 0) {
+            cardHtml += `
+                    <details class="group mt-2">
+                        <summary class="text-xs font-semibold text-blue-600 cursor-pointer list-none flex items-center justify-center p-2 bg-blue-50/50 rounded-lg hover:bg-blue-50 transition-colors">
+                            <span>+ Nhập điểm môn khác vào kỳ này</span>
+                        </summary>
+                        <div class="pt-3 space-y-3 mt-2 border-t border-gray-100">
+            `;
+            coursesNotInSem.forEach(c => {
+                cardHtml += `
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex-1">
+                                    <div class="font-medium text-sm text-gray-600">${c.tenHP}</div>
+                                    <div class="text-[10px] text-gray-400">${c.tc} TC</div>
+                                </div>
+                                <div class="w-16">
+                                    <input type="text" class="w-full border border-gray-200 rounded text-center text-sm py-1 bg-gray-50 focus:bg-white focus:border-blue-500 outline-none" placeholder="-" onchange="updateScore('${c.id}', '${sem}', this.value)">
+                                </div>
+                            </div>
+                `;
+            });
+            cardHtml += `
+                        </div>
+                    </details>
+            `;
+        }
+        cardHtml += `
+                </div>
+            </div>
+        `;
+        mobileCardsHtml += cardHtml;
+
+        // --- XỬ LÝ LOGIC TÍNH TOÁN ĐIỂM ---
+        let sTcGpa = 0; // Tín chỉ ĐTB của riêng học kỳ này
+        let sScoreGpa = 0; // Tổng điểm của riêng học kỳ này
+
+        // Tính điểm cho học kỳ hiện tại (không liên quan học lại)
         data.courses.forEach(c => {
             const val = c.scores[sem];
             if (val) {
-                const isDat = val === 'Đ' || val.toLowerCase() === 'dat';
                 const scoreNum = parseFloat(val);
                 const isValidScore = !isNaN(scoreNum);
                 
-                // Chỉ cộng vào Tín chỉ tích luỹ nếu học phần đó tính điểm và pass (có điểm số >= 0 hoặc 'Đ')
-                if (c.tinhGPA && (isValidScore || isDat)) {
-                    sTcAll += c.tc;
-                }
-                
-                // CHỈ môn nào đánh dấu "Tính điểm" VÀ có điểm số thì mới đưa vào tính toán học kỳ và ĐTB
                 if (c.tinhGPA && isValidScore) {
                     sTcGpa += c.tc;
                     sScoreGpa += (scoreNum * c.tc);
@@ -299,31 +308,67 @@ function renderTable() {
             }
         });
 
-        // Semester GPA
         const sGpa = sTcGpa > 0 ? (sScoreGpa / sTcGpa) : 0;
         
-        // Cập nhật tích luỹ
-        accTcTotal += sTcAll;
-        accTcGpa += sTcGpa;
-        accScoreGpa += sScoreGpa;
+        // Tính điểm TÍCH LUỸ ĐẾN học kỳ hiện tại (Xử lý học lại: lấy điểm cao nhất)
+        let accTcTotal = 0;
+        let accTcGpa = 0;
+        let accScoreGpa = 0;
+
+        data.courses.forEach(c => {
+            if (!c.tinhGPA) return; // Chỉ xét môn có tính ĐTB (theo yêu cầu trước đó)
+
+            let maxScore = -1;
+            let isPassed = false;
+
+            // Tìm điểm cao nhất từ kỳ 1 đến kỳ hiện tại (semIndex)
+            for (let i = 0; i <= semIndex; i++) {
+                let pastSem = data.semesters[i];
+                let val = c.scores[pastSem];
+                if (val) {
+                    let isDat = val === 'Đ' || val.toLowerCase() === 'dat';
+                    let scoreNum = parseFloat(val);
+                    
+                    if (isDat) isPassed = true;
+                    if (!isNaN(scoreNum)) {
+                        if (scoreNum >= 0) isPassed = true;
+                        if (scoreNum > maxScore) maxScore = scoreNum;
+                    }
+                }
+            }
+
+            if (isPassed) {
+                accTcTotal += c.tc; // Cộng tín chỉ tích luỹ (không bị cộng dồn nếu học lại)
+                if (maxScore >= 0) {
+                    accTcGpa += c.tc;
+                    accScoreGpa += (maxScore * c.tc); // Chỉ lấy điểm cao nhất nhân tín chỉ
+                }
+            }
+        });
+
         const aGpa = accTcGpa > 0 ? (accScoreGpa / accTcGpa) : 0;
 
         footHtmlTc += `<td>${sTcGpa > 0 ? sTcGpa : ''}</td>`;
         footHtmlGpa += `<td>${sTcGpa > 0 ? sGpa.toFixed(2) : ''}</td>`;
         footHtmlAccTc += `<td>${accTcTotal > 0 ? accTcTotal : ''}</td>`;
         footHtmlAccGpa += `<td>${accTcGpa > 0 ? aGpa.toFixed(2) : ''}</td>`;
+        
+        if (semIndex === data.semesters.length - 1) {
+            finalTcTotal = accTcTotal;
+            finalGpa = accTcGpa > 0 ? aGpa.toFixed(2) : '0.00';
+        }
     });
 
+    document.getElementById('mobile-cards-container').innerHTML = mobileCardsHtml;
+    
     footHtmlTc += `<td></td></tr>`;
     footHtmlGpa += `<td></td></tr>`;
     footHtmlAccTc += `<td></td></tr>`;
     footHtmlAccGpa += `<td></td></tr>`;
-
     tfoot.innerHTML = footHtmlTc + footHtmlGpa + footHtmlAccTc + footHtmlAccGpa;
     
     // Update mobile summary bar
-    const finalGpa = accTcGpa > 0 ? (accScoreGpa / accTcGpa).toFixed(2) : '0.00';
-    document.getElementById('mobile-total-tc').innerText = accTcTotal > 0 ? accTcTotal : '0';
+    document.getElementById('mobile-total-tc').innerText = finalTcTotal > 0 ? finalTcTotal : '0';
     document.getElementById('mobile-total-gpa').innerText = finalGpa;
 }
 
