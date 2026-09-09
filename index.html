@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Bảng Điểm CTDT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -20,14 +20,8 @@
         .score-input:focus { background-color: #e8f0fe; }
         
         .sticky-col-1 { position: sticky; left: 0; z-index: 5; background-color: inherit; }
-        .sticky-col-2 { position: sticky; left: 40px; z-index: 5; background-color: inherit; }
-        .sticky-col-3 { position: sticky; left: 136px; z-index: 5; background-color: inherit; }
-        .excel-table th.sticky-col-1, .excel-table th.sticky-col-2, .excel-table th.sticky-col-3 { z-index: 15; }
-        
-        @media (max-width: 768px) {
-            .sticky-col-2, .sticky-col-3 { position: static; }
-            .excel-table th.sticky-col-2, .excel-table th.sticky-col-3 { z-index: 10; }
-        }
+        .sticky-col-2 { position: sticky; left: 40px; z-index: 5; background-color: inherit; box-shadow: 3px 0 5px -2px rgba(0,0,0,0.1); }
+        .excel-table th.sticky-col-1, .excel-table th.sticky-col-2 { z-index: 15; }
         
         /* Custom scrollbar for table container */
         .table-container { max-height: 80vh; overflow: auto; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }

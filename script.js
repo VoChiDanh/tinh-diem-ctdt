@@ -154,16 +154,15 @@ function renderTable() {
 
     // 1. Dựng Header
     let headHtml = `
-        <th class="sticky-col-1 w-10 min-w-[40px] whitespace-nowrap">TT</th>
-        <th class="sticky-col-2 w-24 min-w-[96px] whitespace-nowrap">Mã HP</th>
-        <th class="sticky-col-3 w-64 min-w-[250px] text-left whitespace-nowrap">Tên học phần</th>
-        <th class="w-16 min-w-[64px] whitespace-nowrap">Số TC</th>
-        <th class="w-20 min-w-[80px] whitespace-nowrap">Tính điểm</th>
+        <th class="sticky-col-1 w-10 min-w-[30px] whitespace-nowrap">STT</th>
+        <th class="sticky-col-2 w-64 min-w-[200px] text-left whitespace-nowrap">Học phần (Mã - Tên)</th>
+        <th class="w-16 min-w-[60px] whitespace-nowrap">Số TC</th>
+        <th class="w-20 min-w-[70px] whitespace-nowrap">Tính ĐTB</th>
     `;
     data.semesters.forEach(sem => {
-        headHtml += `<th class="w-20 min-w-[80px] whitespace-nowrap">Học kỳ ${sem}</th>`;
+        headHtml += `<th class="w-20 min-w-[70px] whitespace-nowrap">Học kỳ ${sem}</th>`;
     });
-    headHtml += `<th class="w-10 min-w-[40px] whitespace-nowrap">Xoá</th>`;
+    headHtml += `<th class="w-10 min-w-[40px] whitespace-nowrap"><i class="fa-solid fa-trash"></i></th>`;
     thead.innerHTML = headHtml;
 
     // 2. Dựng Body (Courses)
@@ -171,15 +170,15 @@ function renderTable() {
     data.courses.forEach((c, index) => {
         let rowHtml = `
             <tr class="bg-white">
-                <td class="sticky-col-1 bg-inherit">${index + 1}</td>
-                <td class="sticky-col-2 bg-inherit">
-                    <input type="text" class="score-input" value="${c.maHP}" onchange="updateCourse('${c.id}', 'maHP', this.value)" placeholder="...">
-                </td>
-                <td class="sticky-col-3 bg-inherit text-left">
-                    <input type="text" class="score-input text-left" value="${c.tenHP}" onchange="updateCourse('${c.id}', 'tenHP', this.value)">
+                <td class="sticky-col-1 bg-inherit text-center">${index + 1}</td>
+                <td class="sticky-col-2 bg-inherit text-left">
+                    <div class="flex flex-col gap-1">
+                        <input type="text" class="score-input text-left font-bold text-sm" value="${c.tenHP}" onchange="updateCourse('${c.id}', 'tenHP', this.value)" placeholder="Tên học phần...">
+                        <input type="text" class="score-input text-left text-xs text-gray-500" value="${c.maHP}" onchange="updateCourse('${c.id}', 'maHP', this.value)" placeholder="Mã học phần...">
+                    </div>
                 </td>
                 <td>
-                    <input type="number" class="score-input" value="${c.tc}" min="0" step="0.5" onchange="updateCourse('${c.id}', 'tc', this.value)">
+                    <input type="number" class="score-input text-center" value="${c.tc}" min="0" step="0.5" onchange="updateCourse('${c.id}', 'tc', this.value)">
                 </td>
                 <td>
                     <input type="checkbox" ${c.tinhGPA ? 'checked' : ''} onchange="updateCourse('${c.id}', 'tinhGPA', this.checked)">
@@ -216,23 +215,23 @@ function renderTable() {
     
     let footHtmlTc = `<tr class="summary-row">
         <td class="sticky-col-1 bg-inherit" style="border-right: none;"></td>
-        <td class="sticky-col-2 bg-inherit" style="border-left: none; border-right: none;"></td>
-        <td colspan="3" class="text-right sticky-col-3 bg-inherit" style="border-left: none;">Tín chỉ học kỳ (TC)</td>`;
+        <td class="sticky-col-2 bg-inherit text-right whitespace-nowrap" style="border-left: none;">Tín chỉ học kỳ (TC)</td>
+        <td colspan="2"></td>`;
     
     let footHtmlGpa = `<tr class="summary-row">
         <td class="sticky-col-1 bg-inherit" style="border-right: none;"></td>
-        <td class="sticky-col-2 bg-inherit" style="border-left: none; border-right: none;"></td>
-        <td colspan="3" class="text-right sticky-col-3 bg-inherit" style="border-left: none;">Điểm TB học kỳ (ĐTB)</td>`;
+        <td class="sticky-col-2 bg-inherit text-right whitespace-nowrap" style="border-left: none;">Điểm TB học kỳ (ĐTB)</td>
+        <td colspan="2"></td>`;
         
     let footHtmlAccTc = `<tr class="summary-row text-blue-800">
         <td class="sticky-col-1 bg-inherit" style="border-right: none;"></td>
-        <td class="sticky-col-2 bg-inherit" style="border-left: none; border-right: none;"></td>
-        <td colspan="3" class="text-right sticky-col-3 bg-inherit" style="border-left: none;">Tín chỉ tích luỹ</td>`;
+        <td class="sticky-col-2 bg-inherit text-right whitespace-nowrap" style="border-left: none;">Tín chỉ tích luỹ</td>
+        <td colspan="2"></td>`;
         
     let footHtmlAccGpa = `<tr class="summary-row text-red-700">
         <td class="sticky-col-1 bg-inherit" style="border-right: none;"></td>
-        <td class="sticky-col-2 bg-inherit" style="border-left: none; border-right: none;"></td>
-        <td colspan="3" class="text-right sticky-col-3 bg-inherit" style="border-left: none;">Điểm TB tích luỹ</td>`;
+        <td class="sticky-col-2 bg-inherit text-right whitespace-nowrap" style="border-left: none;">Điểm TB tích luỹ</td>
+        <td colspan="2"></td>`;
 
     data.semesters.forEach(sem => {
         let sTcAll = 0; // Tất cả tín chỉ pass trong kỳ (để tính Tín chỉ tích luỹ toàn khoá)
