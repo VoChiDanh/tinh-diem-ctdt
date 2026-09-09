@@ -154,8 +154,8 @@ function renderTable() {
 
     // 1. Dựng Header
     let headHtml = `
-        <th class="sticky-col-1 w-10 min-w-[30px] whitespace-nowrap">STT</th>
-        <th class="sticky-col-2 w-64 min-w-[200px] text-left whitespace-nowrap">Học phần (Mã - Tên)</th>
+        <th class="sticky-col-1 hidden md:table-cell w-10 min-w-[30px] whitespace-nowrap">STT</th>
+        <th class="sticky-col-2 w-64 min-w-[140px] md:min-w-[200px] text-left whitespace-normal md:whitespace-nowrap leading-tight">Học phần (Mã - Tên)</th>
         <th class="w-16 min-w-[60px] whitespace-nowrap">Số TC</th>
         <th class="w-20 min-w-[70px] whitespace-nowrap">Tính ĐTB</th>
     `;
@@ -170,11 +170,11 @@ function renderTable() {
     data.courses.forEach((c, index) => {
         let rowHtml = `
             <tr class="bg-white">
-                <td class="sticky-col-1 bg-inherit text-center">${index + 1}</td>
+                <td class="sticky-col-1 hidden md:table-cell bg-inherit text-center">${index + 1}</td>
                 <td class="sticky-col-2 bg-inherit text-left">
-                    <div class="flex flex-col gap-1">
-                        <input type="text" class="score-input text-left font-bold text-sm" value="${c.tenHP}" onchange="updateCourse('${c.id}', 'tenHP', this.value)" placeholder="Tên học phần...">
-                        <input type="text" class="score-input text-left text-xs text-gray-500" value="${c.maHP}" onchange="updateCourse('${c.id}', 'maHP', this.value)" placeholder="Mã học phần...">
+                    <div class="flex flex-col gap-1 overflow-hidden">
+                        <input type="text" class="score-input text-left font-bold text-sm text-ellipsis" value="${c.tenHP}" onchange="updateCourse('${c.id}', 'tenHP', this.value)" placeholder="Tên học phần...">
+                        <input type="text" class="score-input text-left text-xs text-gray-500 text-ellipsis" value="${c.maHP}" onchange="updateCourse('${c.id}', 'maHP', this.value)" placeholder="Mã học phần...">
                     </div>
                 </td>
                 <td>
@@ -214,22 +214,22 @@ function renderTable() {
     let accTcTotal = 0;
     
     let footHtmlTc = `<tr class="summary-row">
-        <td class="sticky-col-1 bg-inherit" style="border-right: none;"></td>
+        <td class="sticky-col-1 hidden md:table-cell bg-inherit" style="border-right: none;"></td>
         <td class="sticky-col-2 bg-inherit text-right whitespace-nowrap" style="border-left: none;">Tín chỉ học kỳ (TC)</td>
         <td colspan="2"></td>`;
     
     let footHtmlGpa = `<tr class="summary-row">
-        <td class="sticky-col-1 bg-inherit" style="border-right: none;"></td>
+        <td class="sticky-col-1 hidden md:table-cell bg-inherit" style="border-right: none;"></td>
         <td class="sticky-col-2 bg-inherit text-right whitespace-nowrap" style="border-left: none;">Điểm TB học kỳ (ĐTB)</td>
         <td colspan="2"></td>`;
         
     let footHtmlAccTc = `<tr class="summary-row text-blue-800">
-        <td class="sticky-col-1 bg-inherit" style="border-right: none;"></td>
+        <td class="sticky-col-1 hidden md:table-cell bg-inherit" style="border-right: none;"></td>
         <td class="sticky-col-2 bg-inherit text-right whitespace-nowrap" style="border-left: none;">Tín chỉ tích luỹ</td>
         <td colspan="2"></td>`;
         
     let footHtmlAccGpa = `<tr class="summary-row text-red-700">
-        <td class="sticky-col-1 bg-inherit" style="border-right: none;"></td>
+        <td class="sticky-col-1 hidden md:table-cell bg-inherit" style="border-right: none;"></td>
         <td class="sticky-col-2 bg-inherit text-right whitespace-nowrap" style="border-left: none;">Điểm TB tích luỹ</td>
         <td colspan="2"></td>`;
 

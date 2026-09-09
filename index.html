@@ -20,8 +20,12 @@
         .score-input:focus { background-color: #e8f0fe; }
         
         .sticky-col-1 { position: sticky; left: 0; z-index: 5; background-color: inherit; }
-        .sticky-col-2 { position: sticky; left: 40px; z-index: 5; background-color: inherit; box-shadow: 3px 0 5px -2px rgba(0,0,0,0.1); }
+        .sticky-col-2 { position: sticky; left: 0; z-index: 5; background-color: inherit; box-shadow: 3px 0 5px -2px rgba(0,0,0,0.1); }
         .excel-table th.sticky-col-1, .excel-table th.sticky-col-2 { z-index: 15; }
+        
+        @media (min-width: 768px) {
+            .sticky-col-2 { left: 40px; }
+        }
         
         /* Custom scrollbar for table container */
         .table-container { max-height: 80vh; overflow: auto; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
