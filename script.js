@@ -401,8 +401,10 @@ function renderTable() {
             return "Yếu kém";
         }
 
-        footHtmlTc += `<td>${sTcGpa > 0 ? sTcGpa : ''}</td>`;
-        footHtmlGpa += `<td>${sTcGpa > 0 ? sGpa.toFixed(2) : ''}</td>`;
+        // Xếp loại học lực HỌC KỲ theo Điều 17.2
+        let sRankStr = sTcGpa > 0 ? getRanking(sGpa) : "";
+        footHtmlGpa += `<td>${sTcGpa > 0 ? sGpa.toFixed(2) + '<br><span class="text-xs font-normal text-gray-500">' + sRankStr + '</span>' : ''}</td>`;
+        
         footHtmlAccTc += `<td>${accTcTotal > 0 ? accTcTotal : ''}</td>`;
         
         let rankStr = accTcGpa > 0 ? getRanking(aGpa) : "";
@@ -422,6 +424,123 @@ function renderTable() {
     footHtmlAccTc += `<td></td></tr>`;
     footHtmlAccGpa += `<td></td></tr>`;
     tfoot.innerHTML = footHtmlTc + footHtmlGpa + footHtmlAccTc + footHtmlAccGpa;
+    
+    // --- UPDATE DASHBOARD ---
+    
+    // 1. Trình độ năm học (Điều 18)
+    let svLevel = "Năm nhất";
+    if (finalTcTotal >= 105) svLevel = "Năm tư (>= 105 TC)";
+    else if (finalTcTotal >= 70) svLevel = "Năm ba (70-104 TC)";
+    else if (finalTcTotal >= 35) svLevel = "Năm hai (35-69 TC)";
+    
+    // 2. Dự kiến tốt nghiệp (Điều 22) - Lưu ý không có Trung bình khá
+    let gradRank = "-";
+    let pureGpa = parseFloat(finalGpa);
+    if (finalTcTotal > 0) {
+        if (pureGpa < 5.5) gradRank = "Chưa đủ ĐK (< 5.5)";
+        else if (pureGpa >= 9.0) gradRank = "Xuất sắc";
+        else if (pureGpa >= 8.0) gradRank = "Giỏi";
+        else if (pureGpa >= 7.0) gradRank = "Khá";
+        else gradRank = "Trung bình";
+    }
+
+    // 3. Cảnh báo học vụ (Điều 19)
+    let warningMsg = "";
+    if (data.semesters.length > 0) {
+        // Kiểm tra kỳ gần nhất có nhập điểm
+        let lastSemIndex = -1;
+        let lastSemGpa = 0;
+        let lastAccGpa = 0;
+        let hasData = false;
+        
+        for (let i = data.semesters.length - 1; i >= 0; i--) {
+            let sSem = data.semesters[i];
+            let hasScore = data.courses.some(c => c.scores[sSem] !== undefined && c.scores[sSem].trim() !== '');
+            if (hasScore) {
+                lastSemIndex = i;
+                hasData = true;
+                break;
+            }
+        }
+        
+        if (hasData) {
+            // Tái tính toán lại điểm của kỳ cuối có dữ liệu để check cảnh báo
+            let sTcGpa = 0, sScoreGpa = 0, failedTc = 0, registeredTc = 0;
+            let accTcGpa = 0, accScoreGpa = 0, accTcTotal = 0;
+            
+            data.courses.forEach(c => {
+                // Kỳ cuối
+                let val = c.scores[data.semesters[lastSemIndex]];
+                if (val && val.trim() !== '') {
+                    let scoreNum = parseFloat(val);
+                    if (!isNaN(scoreNum)) {
+                        registeredTc += c.tc;
+                        if (c.tinhGPA) {
+                            sTcGpa += c.tc;
+                            sScoreGpa += (scoreNum * c.tc);
+                        }
+                        if (scoreNum < 5.0) failedTc += c.tc;
+                    }
+                }
+                
+                // Tích luỹ tới kỳ cuối
+                if (c.tinhGPA) {
+                    let maxScore = -1;
+                    let isPassed = false;
+                    for (let j = 0; j <= lastSemIndex; j++) {
+                        let pVal = c.scores[data.semesters[j]];
+                        if (pVal) {
+                            let pNum = parseFloat(pVal);
+                            if (pVal.toUpperCase() === 'Đ' || pVal.toUpperCase() === 'DAT' || pVal.toUpperCase() === 'ĐẠT') isPassed = true;
+                            if (!isNaN(pNum) && pNum > maxScore) maxScore = pNum;
+                        }
+                    }
+                    if (maxScore >= 5.0) isPassed = true;
+                    if (isPassed) {
+                        accTcTotal += c.tc;
+                        if (maxScore >= 5.0) {
+                            accTcGpa += c.tc;
+                            accScoreGpa += (maxScore * c.tc);
+                        }
+                    }
+                }
+            });
+            
+            lastSemGpa = sTcGpa > 0 ? (sScoreGpa / sTcGpa) : 0;
+            lastAccGpa = accTcGpa > 0 ? (accScoreGpa / accTcGpa) : 0;
+            
+            let isFirstYear = (accTcTotal < 35);
+            let isSecondYear = (accTcTotal >= 35 && accTcTotal < 70);
+            let isThirdYear = (accTcTotal >= 70 && accTcTotal < 105);
+            let isFourthYear = (accTcTotal >= 105);
+            
+            if (registeredTc > 0 && failedTc > (registeredTc / 2)) {
+                warningMsg = `Học kỳ ${data.semesters[lastSemIndex]}: Số TC không đạt (${failedTc}) vượt quá 50% khối lượng đăng ký (${registeredTc}).`;
+            } else if (lastSemIndex === 0 && lastSemGpa > 0 && lastSemGpa < 4.0) {
+                warningMsg = `Học kỳ ${data.semesters[lastSemIndex]}: ĐTB học kỳ đầu tiên (${lastSemGpa.toFixed(2)}) dưới 4.00.`;
+            } else if (lastSemIndex > 0 && lastSemGpa > 0 && lastSemGpa < 4.5) {
+                warningMsg = `Học kỳ ${data.semesters[lastSemIndex]}: ĐTB học kỳ (${lastSemGpa.toFixed(2)}) dưới 4.50.`;
+            } else if (lastAccGpa > 0) {
+                if (isFirstYear && lastAccGpa < 5.2) warningMsg = `ĐTB tích lũy (${lastAccGpa.toFixed(2)}) dưới 5.20 (SV năm nhất).`;
+                else if (isSecondYear && lastAccGpa < 5.3) warningMsg = `ĐTB tích lũy (${lastAccGpa.toFixed(2)}) dưới 5.30 (SV năm hai).`;
+                else if (isThirdYear && lastAccGpa < 5.4) warningMsg = `ĐTB tích lũy (${lastAccGpa.toFixed(2)}) dưới 5.40 (SV năm ba).`;
+                else if (isFourthYear && lastAccGpa < 5.5) warningMsg = `ĐTB tích lũy (${lastAccGpa.toFixed(2)}) dưới 5.50 (SV năm tiếp theo).`;
+            }
+        }
+    }
+
+    const warningEl = document.getElementById('warning-alert');
+    if (warningMsg !== "") {
+        document.getElementById('warning-text').innerText = "Cảnh báo học vụ (Điều 19): " + warningMsg;
+        warningEl.classList.remove('hidden');
+    } else {
+        warningEl.classList.add('hidden');
+    }
+
+    document.getElementById('summary-tc').innerText = finalTcTotal > 0 ? finalTcTotal : '0';
+    document.getElementById('summary-gpa').innerText = finalTcTotal > 0 ? pureGpa.toFixed(2) : '0.00';
+    document.getElementById('summary-level').innerText = svLevel;
+    document.getElementById('summary-grad').innerText = gradRank;
     
     // Update mobile summary bar
     document.getElementById('mobile-total-tc').innerText = finalTcTotal > 0 ? finalTcTotal : '0';
