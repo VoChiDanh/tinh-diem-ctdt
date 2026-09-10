@@ -365,20 +365,25 @@ function renderTable() {
                 let pastSem = data.semesters[i];
                 let val = c.scores[pastSem];
                 if (val) {
-                    let isDat = val === 'Đ' || val.toLowerCase() === 'dat';
+                    let isDat = val === 'Đ' || val.toLowerCase() === 'dat' || val.toLowerCase() === 'đạt';
                     let scoreNum = parseFloat(val);
                     
                     if (isDat) isPassed = true;
                     if (!isNaN(scoreNum)) {
-                        if (scoreNum >= 0) isPassed = true;
                         if (scoreNum > maxScore) maxScore = scoreNum;
                     }
                 }
             }
+            
+            // Theo Điều 15: Điểm học phần từ 5 điểm trở lên được đánh giá là đạt
+            if (maxScore >= 5.0) {
+                isPassed = true;
+            }
 
+            // Theo Điều 14, 17: Tích lũy tính từ đầu khóa học đối với các học phần đã đạt
             if (isPassed) {
                 accTcTotal += c.tc;
-                if (maxScore >= 0) {
+                if (maxScore >= 5.0) {
                     accTcGpa += c.tc;
                     accScoreGpa += (maxScore * c.tc);
                 }
@@ -386,15 +391,27 @@ function renderTable() {
         });
 
         const aGpa = accTcGpa > 0 ? (accScoreGpa / accTcGpa) : 0;
+        
+        function getRanking(gpa) {
+            if (gpa >= 9.0) return "Xuất sắc";
+            if (gpa >= 8.0) return "Giỏi";
+            if (gpa >= 7.0) return "Khá";
+            if (gpa >= 5.5) return "Trung bình khá";
+            if (gpa >= 5.0) return "Trung bình";
+            return "Yếu kém";
+        }
 
         footHtmlTc += `<td>${sTcGpa > 0 ? sTcGpa : ''}</td>`;
         footHtmlGpa += `<td>${sTcGpa > 0 ? sGpa.toFixed(2) : ''}</td>`;
         footHtmlAccTc += `<td>${accTcTotal > 0 ? accTcTotal : ''}</td>`;
-        footHtmlAccGpa += `<td>${accTcGpa > 0 ? aGpa.toFixed(2) : ''}</td>`;
+        
+        let rankStr = accTcGpa > 0 ? getRanking(aGpa) : "";
+        footHtmlAccGpa += `<td>${accTcGpa > 0 ? aGpa.toFixed(2) + '<br><span class="text-xs font-normal text-gray-500">' + rankStr + '</span>' : ''}</td>`;
         
         if (semIndex === data.semesters.length - 1) {
             finalTcTotal = accTcTotal;
             finalGpa = accTcGpa > 0 ? aGpa.toFixed(2) : '0.00';
+            if (accTcGpa > 0) finalGpa += ` <span class="text-sm font-normal text-gray-600">(${rankStr})</span>`;
         }
     });
 
@@ -408,7 +425,7 @@ function renderTable() {
     
     // Update mobile summary bar
     document.getElementById('mobile-total-tc').innerText = finalTcTotal > 0 ? finalTcTotal : '0';
-    document.getElementById('mobile-total-gpa').innerText = finalGpa;
+    document.getElementById('mobile-total-gpa').innerHTML = finalGpa;
 }
 
 // Init
