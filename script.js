@@ -403,6 +403,7 @@ function renderTable() {
 
         // Xếp loại học lực HỌC KỲ theo Điều 17.2
         let sRankStr = sTcGpa > 0 ? getRanking(sGpa) : "";
+        footHtmlTc += `<td>${sTcGpa > 0 ? sTcGpa : ''}</td>`;
         footHtmlGpa += `<td>${sTcGpa > 0 ? sGpa.toFixed(2) + '<br><span class="text-xs font-normal text-gray-500">' + sRankStr + '</span>' : ''}</td>`;
         
         footHtmlAccTc += `<td>${accTcTotal > 0 ? accTcTotal : ''}</td>`;
