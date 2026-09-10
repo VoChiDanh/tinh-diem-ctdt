@@ -173,6 +173,15 @@ function deleteCourse(id) {
     }
 }
 
+function getRanking(gpa) {
+    if (gpa >= 9.0) return "Xuất sắc";
+    if (gpa >= 8.0) return "Giỏi";
+    if (gpa >= 7.0) return "Khá";
+    if (gpa >= 5.5) return "Trung bình khá";
+    if (gpa >= 5.0) return "Trung bình";
+    return "Yếu kém";
+}
+
 function renderTable() {
     const thead = document.getElementById('header-row');
     const tbody = document.getElementById('table-body');
@@ -336,10 +345,11 @@ function renderTable() {
         
         // Add card footer for semester stats
         if (sTcGpa > 0 || coursesInSem.length > 0) {
+            let sCardRankStr = sTcGpa > 0 ? getRanking(sGpa) : "";
             cardHtml += `
                     <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center text-sm bg-gray-50 -mx-3 -mb-3 px-3 py-2 rounded-b-lg">
                         <div><span class="text-gray-500">TC kỳ:</span> <span class="font-bold text-blue-700">${sTcGpa > 0 ? sTcGpa : 0}</span></div>
-                        <div><span class="text-gray-500">ĐTB kỳ:</span> <span class="font-bold text-red-600">${sTcGpa > 0 ? sGpa.toFixed(2) : '0.00'}</span></div>
+                        <div><span class="text-gray-500">ĐTB kỳ:</span> <span class="font-bold text-red-600">${sTcGpa > 0 ? sGpa.toFixed(2) : '0.00'}</span> ${sCardRankStr ? '<span class="text-xs font-normal text-gray-500">(' + sCardRankStr + ')</span>' : ''}</div>
                     </div>
             `;
         }
@@ -391,15 +401,6 @@ function renderTable() {
         });
 
         const aGpa = accTcGpa > 0 ? (accScoreGpa / accTcGpa) : 0;
-        
-        function getRanking(gpa) {
-            if (gpa >= 9.0) return "Xuất sắc";
-            if (gpa >= 8.0) return "Giỏi";
-            if (gpa >= 7.0) return "Khá";
-            if (gpa >= 5.5) return "Trung bình khá";
-            if (gpa >= 5.0) return "Trung bình";
-            return "Yếu kém";
-        }
 
         // Xếp loại học lực HỌC KỲ theo Điều 17.2
         let sRankStr = sTcGpa > 0 ? getRanking(sGpa) : "";
